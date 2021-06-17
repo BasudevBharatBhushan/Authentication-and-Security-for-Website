@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
 const app = express();
+const encrypt = require("mongoose-encryption")       //Added in Level -2   - npm i mongoose-encryption
 
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
@@ -15,14 +16,19 @@ mongoose.connect("mongodb://localhost:27017/userDB",{useNewUrlParser:true,useUni
 mongoose.set("useFindAndModify",false);
 mongoose.set("useCreateIndex",true);
 
-///////////////LEVEL - 1 SECURITY AUTHENTICATION //////////////////////////
+///////////////LEVEL - 2 SECURITY AUTHENTICATION //////////////////////////
 
-const userSchema = {      //Just a Js object
+const userSchema = new mongoose.Schema({    //Object created from object Schema class
   email:String,
   password:String
-};
-const User = new mongoose.model("User",userSchema);
+});
 
+
+ const secret = "Thisisourlittlesecret.";    //Encryption Key
+ userSchema.plugin(encrypt , {secret:secret,encryptedFields:["password"] });
+// so this encryption method will encrypt password when saved and decrypt when find is called
+
+const User = new mongoose.model("User",userSchema);
 app.get("/",function(req , res){
   res.render("home");
 });
