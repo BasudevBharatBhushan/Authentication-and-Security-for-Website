@@ -1,4 +1,5 @@
 //jshint esversion:6
+require("dotenv").config();                   // npm i dotenv
 const express =require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -16,19 +17,16 @@ mongoose.connect("mongodb://localhost:27017/userDB",{useNewUrlParser:true,useUni
 mongoose.set("useFindAndModify",false);
 mongoose.set("useCreateIndex",true);
 
-///////////////LEVEL - 2 SECURITY AUTHENTICATION //////////////////////////
-
+/////////lEVEL-2 with added enviornment vars added/////////
 const userSchema = new mongoose.Schema({    //Object created from object Schema class
   email:String,
   password:String
 });
 
-
- const secret = "Thisisourlittlesecret.";    //Encryption Key
- userSchema.plugin(encrypt , {secret:secret,encryptedFields:["password"] });
-// so this encryption method will encrypt password when saved and decrypt when find is called
-
+userSchema.plugin(encrypt , {secret:process.env.SECRET,encryptedFields:["password"] });
 const User = new mongoose.model("User",userSchema);
+
+
 app.get("/",function(req , res){
   res.render("home");
 });
