@@ -41,7 +41,8 @@ app.use(passport.session()); //Level 5
 const userSchema = new mongoose.Schema({ //Object created from object Schema class
   email: String,
   password: String,
-  googleId: String //Level - 6 Google Auth
+  googleId: String, //Level - 6 Google Auth
+  secret:String
 });
 
 userSchema.plugin(passportLocalMongoose); //Level 5
@@ -112,12 +113,25 @@ app.get("/logout", function(req, res) {
 });
 
 app.get("/secrets", function(req, res) {
-  if (req.isAuthenticated()) {
-    res.render("secrets");
-  } else {
+  User.find({"secret":{$ne:null}},function(err , foundUsers){
+    if(err){
+      console.log();
+    }else{
+      if(foundUsers){
+        res.render("secrets",{userWithSecrets:foundUsers});
+      }
+    }
+  });
+});
+
+app.get("/submit",function(req , res){
+  if(req.isAuthenticated()){
+    res.render("submit");
+  }else{
     res.redirect("/login");
   }
 });
+
 
 app.post("/register", function(req, res) {
   //Method from passport local mongoose package
